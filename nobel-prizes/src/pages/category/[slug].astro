@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PrizeCard from "../../components/PrizeCard.astro";
+import { getNobelData } from "../../lib/nobel.js";
+
+export async function getStaticPaths() {
+  const categories = [
+    ["Chemistry", "chemistry"],
+    ["Economic Sciences", "economic-sciences"],
+    ["Literature", "literature"],
+    ["Peace", "peace"],
+    ["Physics", "physics"],
+    ["Physiology or Medicine", "physiology-or-medicine"],
+  ];
+
+  const { prizes } = await getNobelData();
+
+  return categories.map(([name, slug]) => ({
+    params: { slug },
+    props: {
+      categoryName: name,
+      prizes: prizes.filter((prize) => prize.category?.en === name),
+    },
+  }));
+}
+
+const { categoryName, prizes } = Astro.props;
+---
+
+<BaseLayout title={`${categoryName} Nobel Prizes`}>
+  <h1>{categoryName} Nobel Prizes</h1>
+
+  <ul>
+    {prizes.map((prize) => (
+      <li><PrizeCard prize={prize} /></li>
+    ))}
+  </ul>
+</BaseLayout>

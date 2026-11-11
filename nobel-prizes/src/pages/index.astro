@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getNobelData } from "../lib/nobel.js";
+
+const { prizes } = await getNobelData();
+
+const categories = [
+  ["Chemistry", "chemistry"],
+  ["Economic Sciences", "economic-sciences"],
+  ["Literature", "literature"],
+  ["Peace", "peace"],
+  ["Physics", "physics"],
+  ["Physiology or Medicine", "physiology-or-medicine"],
+];
+
+const years = [...new Set(prizes.map((prize) => prize.awardYear))]
+  .filter(Boolean)
+  .sort((a, b) => Number(b) - Number(a));
+---
+
+<BaseLayout title="Nobel Prize Explorer">
+  <h1>Explore Nobel Prizes</h1>
+  <p>Browse Nobel Prizes by category or year.</p>
+
+  <section aria-labelledby="categories-heading">
+    <h2 id="categories-heading">Browse by category</h2>
+    <ul>
+      {categories.map(([name, slug]) => (
+        <li><a href={`/category/${slug}/`}>{name}</a></li>
+      ))}
+    </ul>
+  </section>
+
+  <section aria-labelledby="years-heading">
+    <h2 id="years-heading">Browse by year</h2>
+    <ul>
+      {years.map((year) => (
+        <li><a href={`/year/${year}/`}>{year}</a></li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>

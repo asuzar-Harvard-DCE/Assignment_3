@@ -1,0 +1,79 @@
+---
+const { locations } = Astro.props;
+---
+
+{locations.length > 0 && (
+  <section aria-labelledby="map-heading">
+    <h2 id="map-heading">Laureate locations</h2>
+    <div
+      class="laureate-map"
+      data-laureate-map
+      data-locations={JSON.stringify(locations)}
+      role="region"
+      aria-label="Map of laureate locations"
+    ></div>
+  </section>
+)}
+
+<script>
+  import * as L from "leaflet";
+  import "leaflet/dist/leaflet.css";
+
+  const mapElements = document.querySelectorAll<HTMLElement>("[data-laureate-map]");
+
+  mapElements.forEach((element) => {
+    const locations = JSON.parse(element.dataset.locations || "[]");
+
+    if (locations.length === 0) return;
+
+    const map = L.map(element);
+    const markers: L.CircleMarker[] = [];
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    locations.forEach((location: {
+      kind: string;
+      place: string;
+      latitude: number;
+      longitude: number;
+    }) => {
+      const marker = L.circleMarker(
+        [location.latitude, location.longitude],
+        { radius: 8 }
+      ).addTo(map);
+
+      const popup = document.createElement("div");
+      const label = document.createElement("strong");
+      label.textContent = location.kind;
+      popup.append(label, document.createElement("br"));
+      popup.append(document.createTextNode(location.place));
+      marker.bindPopup(popup);
+
+      markers.push(marker);
+    });
+
+    const group = L.featureGroup(markers);
+
+    if (markers.length === 1) {
+      map.setView(markers[0].getLatLng(), 5);
+    } else {
+      map.fitBounds(group.getBounds().pad(0.2), { maxZoom: 6 });
+    }
+  });
+</script>
+
+<style>
+  .laureate-map {
+    width: 100%;
+    height: 24rem;
+    border-radius: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .laureate-map {
+      height: 18rem;
+    }
+  }
+</style>

@@ -1,0 +1,56 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #18212b;
+  background: #f7f8fa;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.site-header,
+.site-footer {
+  padding: 1rem max(1rem, calc((100% - 70rem) / 2));
+  background: #172b4d;
+  color: white;
+}
+
+.site-title {
+  color: inherit;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav a {
+  color: white;
+}
+
+.page-content {
+  width: min(100% - 2rem, 70rem);
+  margin: 2rem auto;
+}
+
+.site-footer {
+  margin-top: 3rem;
+}
+
+@media (max-width: 420px) {
+  .page-content {
+    width: min(100% - 1.25rem, 70rem);
+  }
+}

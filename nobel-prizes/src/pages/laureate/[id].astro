@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import LaureateMap from "../../components/LaureateMap.astro";
+import { getNobelData } from "../../lib/nobel.js";
+
+export async function getStaticPaths() {
+  const { laureates } = await getNobelData();
+
+  return laureates
+    .filter((laureate: any) => laureate.id != null)
+    .map((laureate: any) => ({
+      params: { id: String(laureate.id) },
+      props: { laureate },
+    }));
+}
+
+const laureate: any = Astro.props.laureate;
+
+const name =
+  laureate.knownName?.en ||
+  laureate.orgName?.en ||
+  laureate.fullName?.en ||
+  `Laureate ${laureate.id}`;
+
+const prizes: any[] = Array.isArray(laureate.nobelPrizes)
+  ? laureate.nobelPrizes
+  : [];
+
+const locations: any[] = [];
+
+function addLocation(kind: string, placeData: any, institutionName = "") {
+  if (!placeData?.cityNow) return;
+
+  const latitude = Number(placeData.cityNow.latitude);
+  const longitude = Number(placeData.cityNow.longitude);
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+  const place =
+    placeData.locationString?.en ||
+    [placeData.cityNow.en, placeData.countryNow?.en]
+      .filter(Boolean)
+      .join(", ");
+
+  if (!place) return;
+
+  locations.push({
+    kind,
+    place: institutionName ? `${institutionName} — ${place}` : place,
+    latitude,
+    longitude,
+  });
+}
+
+addLocation("Birth", laureate.birth?.place);
+addLocation("Death", laureate.death?.place);
+
+for (const prize of prizes) {
+  for (const affiliation of prize.affiliations || []) {
+    addLocation(
+      "Institution affiliation",
+      affiliation,
+      affiliation.name?.en || "Institution"
+    );
+  }
+}
+---
+
+<BaseLayout title={`${name} — Nobel Prize Laureate`}>
+  <article>
+    <h1>{name}</h1>
+
+    <LaureateMap locations={locations} />
+
+    <section aria-labelledby="prizes-heading">
+      <h2 id="prizes-heading">Nobel Prizes</h2>
+      <ul>
+        {prizes.map((prize: any) => (
+          <li>
+            <h3>
+              {prize.category?.en || "Nobel Prize"} — {prize.awardYear}
+            </h3>
+            {prize.motivation?.en && <p>{prize.motivation.en}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</BaseLayout>

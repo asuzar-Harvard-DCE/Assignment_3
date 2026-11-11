@@ -1,0 +1,53 @@
+---
+const { prize } = Astro.props as { prize: any };
+const laureates = prize.laureates || [];
+---
+
+<article class="prize-card">
+  <h2>{prize.category && prize.category.en} — {prize.awardYear}</h2>
+
+  {laureates.length > 0 ? (
+    <ul class="laureate-list">
+      {laureates.map((laureate: any) => {
+        const name =
+          (laureate.knownName && laureate.knownName.en) ||
+          (laureate.orgName && laureate.orgName.en) ||
+          (laureate.fullName && laureate.fullName.en) ||
+          `Laureate ${laureate.id}`;
+
+        return (
+          <li>
+            <a href={`/laureate/${laureate.id}/`}>{name}</a>
+            {laureate.motivation && laureate.motivation.en ? (
+              <p>{laureate.motivation.en}</p>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  ) : (
+    <p>Laureate information is unavailable for this prize.</p>
+  )}
+</article>
+
+<style>
+  .prize-card {
+    margin-block: 1rem;
+    padding: 1rem;
+    border: 1px solid #d7dce2;
+    border-radius: 0.5rem;
+    background: white;
+  }
+
+  .prize-card h2 {
+    margin-top: 0;
+  }
+
+  .laureate-list {
+    padding-left: 1.25rem;
+  }
+
+  .laureate-list p {
+    margin-block: 0.25rem 1rem;
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PrizeCard from "../../components/PrizeCard.astro";
+import { getNobelData } from "../../lib/nobel.js";
+
+export async function getStaticPaths() {
+  const { prizes } = await getNobelData();
+
+  const years = [...new Set(prizes.map((prize) => prize.awardYear))]
+    .filter(Boolean)
+    .sort((a, b) => Number(a) - Number(b));
+
+  return years.map((year) => ({
+    params: { year },
+    props: {
+      prizes: prizes.filter((prize) => prize.awardYear === year),
+    },
+  }));
+}
+
+const { year } = Astro.params;
+const { prizes } = Astro.props;
+---
+
+<BaseLayout title={`Nobel Prizes in ${year}`}>
+  <h1>Nobel Prizes in {year}</h1>
+
+  <ul>
+    {prizes.map((prize) => (
+      <li><PrizeCard prize={prize} /></li>
+    ))}
+  </ul>
+</BaseLayout>
