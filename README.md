@@ -1,5 +1,7 @@
 CSCI E-12 
+
 Assignment 3
+
 AI Utilized: Harvard AI Sandbox
 
 Astro Starter Kit: Minimal
